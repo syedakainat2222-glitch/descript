@@ -27,6 +27,9 @@ const prompt = ai.definePrompt({
   output: {schema: ScriptToScenesOutputSchema},
   prompt: `You are a script breakdown expert. Your job is to take a script and break it down into scenes. Each sentence in the script should be a separate scene.
 
+For example, if the script is "A man walks into a cafe. He orders coffee. He sits by the window.", the output should be a JSON array like this:
+["A man walks into a cafe.", "He orders coffee.", "He sits by the window."]
+
 Here is the script:
 
 {{{input}}}
