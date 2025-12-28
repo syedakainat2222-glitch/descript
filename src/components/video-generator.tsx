@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useEffect, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { Loader2, PenSquare, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 
@@ -41,7 +41,7 @@ function SubmitButton() {
 }
 
 export function VideoGenerator() {
-  const [state, formAction] = useFormState(generateCinema, initialState);
+  const [state, formAction] = useActionState(generateCinema, initialState);
   const { toast } = useToast();
 
   useEffect(() => {
