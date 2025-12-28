@@ -1,3 +1,10 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "initial-view",
+      "description": "A placeholder image showing a director's chair and film equipment, representing movie making.",
+      "imageUrl": "https://images.unsplash.com/photo-1632187989763-c9c620420b4d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmaWxtJTIwc2V0fGVufDB8fHx8MTc2Njg4MjI5MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "film set"
+    }
+  ]
 }
