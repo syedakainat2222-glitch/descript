@@ -25,16 +25,18 @@ const prompt = ai.definePrompt({
   name: 'scriptToScenesPrompt',
   input: {schema: ScriptToScenesInputSchema},
   output: {schema: ScriptToScenesOutputSchema},
-  prompt: `You are a script breakdown expert. Your job is to take a script and break it down into scenes. Each sentence in the script should be a separate scene.
+  prompt: `You are a script breakdown expert. Your job is to take a script and break it down into individual scenes. Each sentence in the provided script must be treated as a separate scene.
 
-For example, if the script is "A man walks into a cafe. He orders coffee. He sits by the window.", the output should be a JSON array like this:
-["A man walks into a cafe.", "He orders coffee.", "He sits by the window."]
+For example, if the input script is: "A majestic dragon soars over a mystical forest at dawn. It lets out a mighty roar. The trees tremble in response."
+
+Your output MUST be a JSON array of strings like this:
+["A majestic dragon soars over a mystical forest at dawn.", "It lets out a mighty roar.", "The trees tremble in response."]
+
+Do not add any extra commentary or text. Only return the JSON array.
 
 Here is the script:
 
-{{{input}}}
-
-Please return a JSON array of strings, where each string is a scene from the script.`,
+{{{input}}}`,
 });
 
 const scriptToScenesFlow = ai.defineFlow(
