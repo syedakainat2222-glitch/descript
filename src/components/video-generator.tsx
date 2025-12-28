@@ -104,6 +104,7 @@ export function VideoGenerator() {
                     height={360}
                     data-ai-hint={initialImage.imageHint}
                     className="rounded-md object-cover aspect-video mb-4 shadow-lg"
+                    priority
                   />
                 <h2 className="text-2xl font-bold font-headline mb-2">Bring Your Story to Life</h2>
                 <p className="text-muted-foreground max-w-md">
