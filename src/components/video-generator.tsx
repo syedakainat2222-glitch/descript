@@ -69,8 +69,8 @@ export function VideoGenerator() {
               <Textarea
                 id="script"
                 name="script"
-                placeholder="e.g., A man walks into a cafe. He orders coffee. He sits by the window."
-                defaultValue="A man walks into a cafe. He orders coffee. He sits by the window."
+                placeholder="e.g., A majestic dragon soars over a mystical forest at dawn."
+                defaultValue="A majestic dragon soars over a mystical forest at dawn."
                 className="min-h-[200px] text-base resize-none"
                 required
               />

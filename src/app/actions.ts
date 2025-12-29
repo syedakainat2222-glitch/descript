@@ -4,9 +4,10 @@ import { z } from 'zod';
 import { scriptToScenes } from '@/ai/flows/script-to-scenes';
 import { generateVoiceover } from '@/ai/flows/generate-voiceover';
 import { suggestBackgroundMusic } from '@/ai/flows/suggest-background-music';
+import { generateSceneImage } from '@/ai/flows/generate-scene-image';
 import type { ActionState, Scene } from '@/lib/types';
 
-const scriptSchema = z.string().min(10, { message: 'Script must be at least 10 characters long.' }).max(2000, { message: 'Script cannot be more than 2000 characters.' });
+const scriptSchema = z.string().min(1, { message: 'Script must not be empty.' }).max(2000, { message: 'Script cannot be more than 2000 characters.' });
 
 export async function generateCinema(
   prevState: ActionState,
@@ -44,11 +45,17 @@ export async function generateCinema(
         return { data: null, status: 'error', error: 'Could not suggest music.' };
     }
 
+    // Generate images for each scene in parallel
+    const imagePromises = scenesTexts.map(sceneText => 
+      generateSceneImage({ sceneText })
+    );
+    const imageResults = await Promise.all(imagePromises);
+
     const scenes: Scene[] = scenesTexts.map((sceneText, index) => {
       const hint = sceneText.split(' ').slice(0, 2).join(' ');
       return {
         text: sceneText,
-        imageUrl: `https://picsum.photos/seed/${index}-${script.length}/1280/720`,
+        imageUrl: imageResults[index].imageUrl,
         imageHint: hint,
       };
     });
@@ -62,12 +69,12 @@ export async function generateCinema(
         musicSuggestion: musicResult.musicSuggestion,
       },
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
     return {
       data: null,
       status: 'error',
-      error: 'An unexpected error occurred. Please try again.',
+      error: error.message || 'An unexpected error occurred. Please try again.',
     };
   }
 }
