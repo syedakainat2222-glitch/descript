@@ -17,6 +17,9 @@ function toAss(subtitles: Subtitle[], styles: any): string {
 
 export async function POST(req: NextRequest) {
     try {
+        if (!supabaseAdmin) {
+            throw new Error('Supabase admin client is not initialized. Make sure SUPABASE_URL and SUPABASE_SERVICE_KEY are set.');
+        }
 
         if (!ffmpeg) {
             throw new Error('FFmpeg binary not found.');
