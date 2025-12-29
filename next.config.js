@@ -35,6 +35,19 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+        // Ensure ffmpeg binary is copied to the server build
+        config.module.rules.push({
+            test: /ffmpeg-static/,
+            type: 'asset/resource',
+            generator: {
+                filename: 'vendor-chunks/[name][ext]',
+            },
+        });
+    }
+    return config;
+  },
 };
 
 export default nextConfig;

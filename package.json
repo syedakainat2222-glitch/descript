@@ -7,7 +7,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "mkdir -p ./.next/server/vendor-chunks && cp ./node_modules/ffmpeg-static/ffmpeg ./.next/server/vendor-chunks/ffmpeg && chmod +x ./.next/server/vendor-chunks/ffmpeg"
   },
   "dependencies": {
     "@distube/ytdl-core": "^4.13.5",

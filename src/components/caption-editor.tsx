@@ -88,18 +88,36 @@ const CaptionEditor = ({ video: initialVideo, onReset: onEditorReset }: { video?
     }
   }, [toast]);
 
-  const handleVideoUploaded = (result: { publicId: string; fileName: string; secureUrl: string }) => {
-    const newVideo: Video = {
-      id: result.publicId, 
+  const handleVideoUploaded = async (result: { publicId: string; fileName: string; secureUrl: string }) => {
+    const newVideo: Omit<Video, 'id' | 'createdAt' | 'updatedAt'> = {
       publicId: result.publicId,
       name: result.fileName,
       videoUrl: result.secureUrl,
       subtitles: [],
       userId: ' ', // Placeholder
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
     };
-    setVideo(newVideo);
+
+    try {
+      const response = await fetch('/api/videos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newVideo),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save video to library');
+      }
+
+      const savedVideo = await response.json();
+      setVideo(savedVideo);
+
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Could not save video. Please try again.',
+      });
+    }
   };
   
   const onVideoSelect = useCallback((selectedVideo: Video) => {

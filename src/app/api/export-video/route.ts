@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
-import ffmpeg from 'ffmpeg-static';
 import { exec } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';
@@ -19,10 +18,6 @@ export async function POST(req: NextRequest) {
     try {
         if (!supabaseAdmin) {
             throw new Error('Supabase admin client is not initialized. Make sure SUPABASE_URL and SUPABASE_SERVICE_KEY are set.');
-        }
-
-        if (!ffmpeg) {
-            throw new Error('FFmpeg binary not found.');
         }
 
         const body = await req.json();
@@ -51,7 +46,17 @@ export async function POST(req: NextRequest) {
         // 3. Run FFmpeg to burn subtitles
         const outputVideoName = `subtitled_${videoName}`;
         const outputVideoPath = path.join(tempDir, outputVideoName);
-        const ffmpegPath = ffmpeg.replace(/\\/g, '/');
+        
+        // Construct a reliable path to the ffmpeg binary
+        const ffmpegPath = path.join(process.cwd(), '.next', 'server', 'vendor-chunks', 'ffmpeg');
+
+        // Verify ffmpeg binary exists
+        try {
+            await fs.access(ffmpegPath, fs.constants.X_OK);
+        } catch (error) {
+            throw new Error(`FFmpeg binary not found or not executable at path: ${ffmpegPath}`);
+        }
+
         const finalSubtitlePath = subtitlePath.replace(/\\/g, '/');
         const finalInputVideoPath = inputVideoPath.replace(/\\/g, '/');
         const finalOutputVideoPath = outputVideoPath.replace(/\\/g, '/');
