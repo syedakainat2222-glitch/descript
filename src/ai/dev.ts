@@ -1,7 +1,8 @@
+'use server';
 import { config } from 'dotenv';
 config();
 
-import '@/ai/flows/generate-voiceover.ts';
-import '@/ai/flows/script-to-scenes.ts';
-import '@/ai/flows/suggest-background-music.ts';
-import '@/ai/flows/generate-scene-image.ts';
+import '@/ai/flows/automatic-subtitle-generation.ts';
+import '@/ai/flows/ai-suggested-corrections.ts';
+import '@/ai/flows/speaker-diarization-for-subtitles.ts';
+import '@/ai/flows/process-video.ts';

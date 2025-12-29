@@ -1,21 +1,19 @@
-# **App Name**: AutoCinema
+# **App Name**: Captionize
 
 ## Core Features:
 
-- Script to Scenes: AI analyzes user script, breaking it into individual scenes based on context.
-- Video Search: Automatically searches stock video libraries for video clips that match the description and mood of each scene.
-- AI Video Creation Tool: Combines selected video clips and automatically generates a cohesive video sequence for each scene, incorporating a voiceover track and background music.
-- Voiceover: AI generates a natural-sounding voiceover to narrate the script for each scene, based on text-to-speech technology.
-- Music Integration Tool: Analyzes the script for mood and tone, then selects appropriate background music from a royalty-free library to enhance the viewing experience, and adds it automatically.
-- UI Display: The app offers a simple and friendly user interface.
-- Simple Player: Allows the user to preview and finalize the video product.
+- Video Upload: Allow users to upload video files through a simple and intuitive interface.
+- Automatic Subtitle Generation: Leverage AI to automatically transcribe the video's audio into subtitles. This includes diarization to attribute dialogue to different speakers.
+- Subtitle Editor: Provide a user-friendly editor to review and correct the automatically generated subtitles, including timing adjustments. The AI may act as a tool making suggestions for corrections based on context.
+- Subtitle Format Options: Offer options to export subtitles in various formats (e.g., SRT, VTT) to ensure compatibility with different video platforms and players.
+- Video Playback with Subtitles: Integrate a video player that supports displaying the generated subtitles, allowing users to preview the result.
 
 ## Style Guidelines:
 
-- Primary color: Deep Indigo (#3F51B5), to reflect depth, intelligence, and cinematic themes.
-- Background color: Very light gray (#F0F0F0), creating a clean, unobtrusive backdrop to focus on content.
-- Accent color: Vivid Orange (#FF5722), providing high-contrast highlights for call-to-action buttons and important interactive elements.
-- Body and headline font: 'Inter', a sans-serif for a modern, machined, objective, neutral feel.
-- Code font: 'Source Code Pro' for displaying code snippets.
-- Simple, minimalist icons representing scene elements, search functions, and editing options.
-- Subtle transitions between scenes and simple animations when AI generates new content to keep user engaged without distraction.
+- Primary color: Deep blue (#293B5F) to evoke professionalism and reliability.
+- Background color: Light gray (#E9E9EA) to provide a clean and modern backdrop.
+- Accent color: Teal (#3D84A8) to highlight key interactive elements.
+- Body and headline font: 'Inter', sans-serif, for a modern and easily readable look.
+- Use minimalist and clear icons to represent different functions such as upload, edit, and export.
+- Employ a clean and structured layout to ensure ease of navigation and usability.
+- Subtle transitions and loading animations to provide a smooth user experience.

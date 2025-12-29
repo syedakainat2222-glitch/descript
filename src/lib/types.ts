@@ -1,17 +1,28 @@
-export type Scene = {
-  text: string;
-  imageUrl: string;
-  imageHint: string;
+import type { Timestamp } from "firebase/firestore";
+import type { Subtitle } from "./srt";
+
+export type Video = {
+    id: string;
+    name: string;
+    videoUrl: string;
+    publicId: string; // Cloudinary public ID
+    subtitles: Subtitle[];
+    subtitleFont?: string;
+    subtitleFontSize?: number;
+    subtitleColor?: string;
+    subtitleOutlineColor?: string;
+    subtitleBackgroundColor?: string;
+    isBold?: boolean;
+    isItalic?: boolean;
+    isUnderline?: boolean;
+    userId: string;
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
 };
 
-export type GenerationResult = {
-  scenes: Scene[];
-  voiceoverUrl: string;
-  musicSuggestion: string;
-};
-
-export type ActionState = {
-  data: GenerationResult | null;
-  error: string | null;
-  status: 'initial' | 'pending' | 'success' | 'error';
+export type User = {
+    uid: string;
+    email: string | null;
+    displayName: string | null;
+    photoURL?: string | null;
 };
