@@ -3,37 +3,30 @@
 import { z } from 'zod';
 import { automaticSubtitleGeneration } from './automatic-subtitle-generation';
 import { detectLanguage } from './detect-language';
-import { v2 as cloudinary } from 'cloudinary';
+import { supabase } from '@/lib/supabase';
 
-// Configure Cloudinary
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
-export async function processVideo(input: { cloudinaryPublicId: string; languageCode?: string }) {
-    // Validate input
+export async function processVideo(input: { publicId: string; languageCode?: string }) {
     const ProcessVideoInputSchema = z.object({
-        cloudinaryPublicId: z.string().min(1, "Cloudinary public ID is required"),
+        publicId: z.string().min(1, "Public ID is required"),
         languageCode: z.string().optional(),
     });
 
     const validatedInput = ProcessVideoInputSchema.parse(input);
     
-    // Debug log to check the public ID
-    console.log('Cloudinary Public ID:', validatedInput.cloudinaryPublicId);
+    console.log('Supabase Public ID:', validatedInput.publicId);
     
-    const videoUrl = cloudinary.url(validatedInput.cloudinaryPublicId, {
-        resource_type: 'video',
-        secure: true, // Always use secure URLs
-    });
+    // Create a signed URL that is valid for 1 hour.
+    const { data, error } = await supabase.storage
+        .from('videos')
+        .createSignedUrl(validatedInput.publicId, 3600);
 
-    console.log('Generated Cloudinary URL:', videoUrl);
-
-    if (!videoUrl) {
-        throw new Error('Failed to generate video URL from Cloudinary.');
+    if (error || !data) {
+        throw new Error('Failed to generate signed video URL from Supabase.');
     }
+
+    const videoUrl = data.signedUrl;
+
+    console.log('Generated Supabase Signed URL:', videoUrl);
 
     let languageCode = validatedInput.languageCode;
     if (!languageCode || languageCode === 'auto') {
@@ -47,6 +40,6 @@ export async function processVideo(input: { cloudinaryPublicId: string; language
 
     return {
         subtitles,
-        videoUrl, // Return the videoUrl so you can save it to Firestore
+        videoUrl, // Return the signed URL
     };
 }

@@ -14,7 +14,7 @@ import {
   Timestamp,
   where,
 } from "firebase/firestore";
-import { auth, app } from "@/lib/firebase";
+import { app } from "@/lib/firebase";
 import type { Video } from "./types";
 import { errorEmitter } from "@/firebase/error-emitter";
 import { FirestorePermissionError } from "@/firebase/errors";
@@ -29,17 +29,11 @@ const toDate = (timestamp: Timestamp | Date | undefined | null): Date => {
 };
 
 /**
- * Fetch all videos for the current user
+ * Fetch all videos
  */
 export async function fetchVideoLibrary(): Promise<Video[]> {
-    const userId = auth.currentUser?.uid;
-    if (!userId) {
-        console.warn("fetchVideoLibrary: No user ID provided, returning empty array.");
-        return [];
-    }
-  
     try {
-        const videosRef = collection(db, `users/${userId}/videos`);
+        const videosRef = collection(db, "videos");
         const q = query(videosRef, orderBy("updatedAt", "desc"));
         const snapshot = await getDocs(q);
 
@@ -51,7 +45,6 @@ export async function fetchVideoLibrary(): Promise<Video[]> {
                 videoUrl: data.videoUrl ?? "",
                 publicId: data.publicId ?? "",
                 subtitles: data.subtitles ?? [],
-                userId: data.userId,
                 createdAt: data.createdAt ?? Timestamp.now(),
                 updatedAt: data.updatedAt ?? Timestamp.now(),
                 subtitleFont: data.subtitleFont || 'Arial, sans-serif',
@@ -70,7 +63,7 @@ export async function fetchVideoLibrary(): Promise<Video[]> {
     } catch (e: any) {
         if (e.code === 'permission-denied') {
             const error = new FirestorePermissionError({
-                path: `/users/${userId}/videos`,
+                path: `/videos`,
                 operation: 'list'
             });
             errorEmitter.emit('permission-error', error);
@@ -84,25 +77,19 @@ export async function fetchVideoLibrary(): Promise<Video[]> {
  * Add a new video
  */
 export async function addVideo(videoData: Omit<Video, 'id' | 'createdAt'>): Promise<string> {
-  const userId = auth.currentUser?.uid;
-   if (!userId) {
-    throw new Error("User not authenticated");
-  }
-
   const dataToSave = {
     ...videoData,
-    userId,
     createdAt: Timestamp.now(),
     updatedAt: videoData.updatedAt || Timestamp.now(),
   };
 
   try {
-    const docRef = await addDoc(collection(db, `users/${userId}/videos`), dataToSave);
+    const docRef = await addDoc(collection(db, "videos"), dataToSave);
     return docRef.id;
   } catch(e: any) {
      if (e.code === 'permission-denied') {
         const error = new FirestorePermissionError({
-            path: `/users/${userId}/videos`,
+            path: `/videos`,
             operation: 'create',
             requestResourceData: dataToSave
         });
@@ -117,11 +104,7 @@ export async function addVideo(videoData: Omit<Video, 'id' | 'createdAt'>): Prom
  * Update existing video
  */
 export async function updateVideo(videoId: string, updateData: Partial<Omit<Video, 'id'>>) {
-  const userId = auth.currentUser?.uid;
-  if (!userId) {
-    throw new Error("User not authenticated");
-  }
-  const videoRef = doc(db, `users/${userId}/videos`, videoId);
+  const videoRef = doc(db, "videos", videoId);
   const dataToUpdate = { ...updateData, updatedAt: Timestamp.now() };
 
   try {
@@ -129,7 +112,7 @@ export async function updateVideo(videoId: string, updateData: Partial<Omit<Vide
   } catch(e: any) {
       if (e.code === 'permission-denied') {
         const error = new FirestorePermissionError({
-            path: `/users/${userId}/videos/${videoId}`,
+            path: `/videos/${videoId}`,
             operation: 'update',
             requestResourceData: dataToUpdate,
         });
@@ -144,17 +127,13 @@ export async function updateVideo(videoId: string, updateData: Partial<Omit<Vide
  * Delete video
  */
 export async function deleteVideo(videoId: string) {
-    const userId = auth.currentUser?.uid;
-    if (!userId) {
-    throw new Error("User not authenticated");
-  }
-    const videoRef = doc(db, `users/${userId}/videos`, videoId);
+    const videoRef = doc(db, "videos", videoId);
     try {
         await deleteDoc(videoRef);
     } catch(e: any) {
         if (e.code === 'permission-denied') {
             const error = new FirestorePermissionError({
-                path: `/users/${userId}/videos/${videoId}`,
+                path: `/videos/${videoId}`,
                 operation: 'delete'
             });
             errorEmitter.emit('permission-error', error);

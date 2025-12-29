@@ -5,8 +5,17 @@ export type Video = {
     id: string;
     name: string;
     videoUrl: string;
-    publicId: string; // Cloudinary public ID
+    publicId: string; 
     subtitles: Subtitle[];
+    userId: string;
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
+    // Optional fields from video processing
+    status?: 'processing' | 'ready' | 'failed';
+    vttUrl?: string;
+    srtUrl?: string;
+    txtUrl?: string;
+    // Optional styling fields
     subtitleFont?: string;
     subtitleFontSize?: number;
     subtitleColor?: string;
@@ -15,9 +24,6 @@ export type Video = {
     isBold?: boolean;
     isItalic?: boolean;
     isUnderline?: boolean;
-    userId: string;
-    createdAt: Timestamp;
-    updatedAt: Timestamp;
 };
 
 export type User = {

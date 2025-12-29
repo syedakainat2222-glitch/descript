@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import axios from 'axios';
+import { supabase } from '@/lib/supabase';
 import {
   Card,
   CardContent,
@@ -86,33 +86,25 @@ export default function VideoUpload({
     setIsUploading(true);
     setUploadProgress(0);
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append(
-      'upload_preset',
-      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!
-    );
-
     try {
-      const response = await axios.post(
-        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/video/upload`,
-        formData,
-        {
-          onUploadProgress: (progressEvent) => {
-            if (progressEvent.total) {
-                const percentCompleted = Math.round(
-                    (progressEvent.loaded * 100) / progressEvent.total
-                );
-                setUploadProgress(percentCompleted);
-            }
-          },
-        }
-      );
+      const fileName = `${Date.now()}-${file.name}`;
+      const { data, error } = await supabase.storage
+        .from('videos')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      const { data: { publicUrl } } = supabase.storage.from('videos').getPublicUrl(fileName);
 
       onVideoSelect({
-        publicId: response.data.public_id,
+        publicId: fileName,
         fileName: file.name,
-        secureUrl: response.data.secure_url,
+        secureUrl: publicUrl,
       });
 
     } catch (error) {

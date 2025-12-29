@@ -3,7 +3,7 @@ import { processVideo } from '@/ai/flows/process-video';
 import { z } from 'zod';
 
 const processVideoSchema = z.object({
-  cloudinaryPublicId: z.string(),
+  publicId: z.string(),
   languageCode: z.string().optional(),
 });
 
@@ -16,10 +16,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: validation.error.format() }, { status: 400 });
     }
 
-    const { cloudinaryPublicId, languageCode } = validation.data;
+    const { publicId, languageCode } = validation.data;
 
     const result = await processVideo({
-      cloudinaryPublicId,
+      publicId,
       languageCode,
     });
 

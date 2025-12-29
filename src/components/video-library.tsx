@@ -1,75 +1,126 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { ExternalLink, Film, Loader2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import type { Video } from '@/lib/types';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from './ui/button';
-import { formatDistanceToNow } from 'date-fns';
-import { PlayCircle, Trash2 } from 'lucide-react';
-import { Timestamp } from 'firebase/firestore';
 
-type VideoLibraryProps = {
-  videos: Video[];
-  onSelectVideo: (video: Video) => void;
-  onDeleteVideo: (videoId: string) => void;
-};
+interface VideoLibraryProps {
+    onVideoSelect: (video: Video) => void;
+    currentVideoId?: string;
+}
 
-const toDate = (timestamp: Timestamp | Date | undefined | null): Date => {
-  if (!timestamp) {
-    return new Date();
-  }
-  if (timestamp instanceof Timestamp) {
-    return timestamp.toDate();
-  }
-  if (timestamp instanceof Date) {
-    return timestamp;
-  }
-  return new Date(timestamp);
-};
+export default function VideoLibrary({ onVideoSelect, currentVideoId }: VideoLibraryProps) {
+    const [videos, setVideos] = useState<Video[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-export default function VideoLibrary({ videos, onSelectVideo, onDeleteVideo }: VideoLibraryProps) {
-  return (
-    <Card className="w-full shadow-lg">
-      <CardHeader>
-        <CardTitle className="font-headline">Video Library</CardTitle>
-        <CardDescription>
-          Select a previously uploaded video to continue editing, or delete it.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="h-[40vh] overflow-auto pr-4">
-          <div className="space-y-4">
-            {videos.length > 0 ? (
-              videos.map((video) => (
-                <div
-                  key={video.id}
-                  className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50 min-w-[500px]"
-                >
-                  <div className="flex-1 overflow-hidden group">
-                    <p className="font-semibold truncate group-hover:whitespace-normal group-hover:overflow-visible">
-                        {video.name}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Last updated: {formatDistanceToNow(toDate(video.updatedAt), { addSuffix: true })}
-                    </p>
-                  </div>
-                  <div className="flex items-center ml-4">
-                    <Button variant="ghost" size="icon" onClick={() => onSelectVideo(video)}>
-                      <PlayCircle className="h-6 w-6 text-primary" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onDeleteVideo(video.id); }}>
-                      <Trash2 className="h-5 w-5 text-destructive" />
-                    </Button>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="flex h-full items-center justify-center text-muted-foreground">
-                <p>Your uploaded videos will appear here.</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+    useEffect(() => {
+        const fetchVideos = async () => {
+            try {
+                const response = await axios.get('/api/videos');
+                setVideos(response.data.videos);
+            } catch (err) {
+                setError('Failed to fetch video library');
+                console.error(err);
+            }
+            setIsLoading(false);
+        };
+
+        fetchVideos();
+        const interval = setInterval(fetchVideos, 15000);
+
+        return () => clearInterval(interval);
+
+    }, []);
+
+    const openInNewTab = (url: string) => {
+        window.open(url, '_blank', 'noopener,noreferrer');
+    };
+
+
+    if (isLoading) {
+        return (
+            <div className="flex h-full items-center justify-center p-4">
+                <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex h-full items-center justify-center p-4 text-red-500">
+                {error}
+            </div>
+        );
+    }
+
+    return (
+        <Card className="h-full w-full">
+            <CardHeader>
+                <CardTitle>Video Library</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ScrollArea className="h-[calc(100vh-14rem)]">
+                    <div className="space-y-4">
+                        {videos.map((video) => (
+                            <Card
+                                key={video.id}
+                                className={`cursor-pointer transition-colors hover:bg-muted/50 ${currentVideoId === video.id ? 'bg-muted' : ''}`}>
+                                <CardContent className="flex items-center gap-4 p-4" onClick={() => onVideoSelect(video)}>
+                                    <Film className="h-8 w-8 text-muted-foreground" />
+                                    <div className="flex-grow overflow-hidden">
+                                        <p className="truncate font-medium">{video.name}</p>
+                                        <div className="mt-1">
+                                            <Badge
+                                                variant={video.status === 'ready' ? 'success' : video.status === 'failed' ? 'destructive' : 'secondary'}
+                                            >
+                                                {video.status}
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            disabled={!video.vttUrl}
+                                            onClick={(e) => { e.stopPropagation(); openInNewTab(video.vttUrl!); }}
+                                            aria-label="Open VTT file"
+                                        >
+                                            <ExternalLink className="h-4 w-4" />
+                                            <span className="ml-2">VTT</span>
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            disabled={!video.srtUrl}
+                                            onClick={(e) => { e.stopPropagation(); openInNewTab(video.srtUrl!); }}
+                                            aria-label="Open SRT file"
+                                        >
+                                            <ExternalLink className="h-4 w-4" />
+                                            <span className="ml-2">SRT</span>
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            disabled={!video.txtUrl}
+                                            onClick={(e) => { e.stopPropagation(); openInNewTab(video.txtUrl!); }}
+                                            aria-label="Open TXT file"
+                                        >
+                                            <ExternalLink className="h-4 w-4" />
+                                            <span className="ml-2">TXT</span>
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                </ScrollArea>
+            </CardContent>
+        </Card>
+    );
 }

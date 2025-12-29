@@ -26,8 +26,8 @@ export async function detectLanguage(input: { videoUrl: string }) {
         }
 
         return transcript.language_code;
-    } catch (error) {
-        console.error('Language detection error:', error);
-        throw new Error('Failed to detect language');
+    } catch (error: any) {
+        console.error('Detailed language detection error:', error);
+        throw new Error(error.message || 'Failed to detect language');
     }
 }
